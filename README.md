@@ -1,6 +1,6 @@
 # Copy as Markdown 📝
 
-[![VS Code Extension](https://img.shields.io/badge/VS_Code_Extension-v0.1.2-007ACC?style=flat-square&logo=visual-studio-code&logoColor=white)](https://github.com/mahmoudmu/copy-as-markdown)
+[![VS Code Extension](https://img.shields.io/badge/VS_Code_Extension-v0.1.2-007ACC?style=flat-square&logo=visual-studio-code&logoColor=white)](https://github.com/musoftware/CopyAsMarkdown)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Zero Dependencies](https://img.shields.io/badge/Dependencies-0-success?style=flat-square)]()
@@ -112,8 +112,8 @@ The extension automatically applies correct code block syntax tags for:
 ### Running from Source
 1. Clone the repository:
    ```bash
-   git clone https://github.com/mahmoudmu/copy-as-markdown.git
-   cd copy-as-markdown
+   git clone https://github.com/musoftware/CopyAsMarkdown.git
+   cd CopyAsMarkdown
    ```
 2. Install dependencies:
    ```bash

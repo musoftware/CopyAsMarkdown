@@ -24,7 +24,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mahmoudmu/copy-as-markdown"
+    "url": "https://github.com/musoftware/CopyAsMarkdown"
   },
   "main": "./out/extension.js",
   "activationEvents": [
