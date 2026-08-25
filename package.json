@@ -1,0 +1,95 @@
+{
+  "name": "copy-as-markdown",
+  "displayName": "Copy as Markdown",
+  "description": "Copy multiple files or folders from VS Code explorer directly into formatted Markdown code blocks with relative paths.",
+  "version": "0.1.0",
+  "publisher": "mahmoudmu",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other",
+    "Formatters",
+    "Programming Languages"
+  ],
+  "keywords": [
+    "markdown",
+    "copy",
+    "prompt",
+    "context",
+    "llm",
+    "code",
+    "files"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mahmoudmu/copy-as-markdown"
+  },
+  "main": "./out/extension.js",
+  "activationEvents": [],
+  "contributes": {
+    "commands": [
+      {
+        "command": "copy-as-markdown.copyFiles",
+        "title": "Copy as Markdown",
+        "icon": "$(markdown)"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "copy-as-markdown.copyFiles",
+          "group": "7_modification"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "copy-as-markdown.copyFiles",
+          "group": "7_modification"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "copy-as-markdown.copyFiles",
+          "group": "navigation"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Copy as Markdown",
+      "properties": {
+        "copyAsMarkdown.includeFileNameAsHeader": {
+          "type": "boolean",
+          "default": true,
+          "description": "Include relative file path as an h3 header (### `path/to/file.ext`)."
+        },
+        "copyAsMarkdown.includeFileTree": {
+          "type": "boolean",
+          "default": false,
+          "description": "Include an ASCII directory tree summary of copied files at the top."
+        },
+        "copyAsMarkdown.includeLineNumbers": {
+          "type": "boolean",
+          "default": false,
+          "description": "Include line numbers before each line in code blocks."
+        },
+        "copyAsMarkdown.maxFileSizeKB": {
+          "type": "number",
+          "default": 1024,
+          "description": "Maximum file size in KB to read (files exceeding this limit will be skipped)."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.3.3"
+  }
+}
