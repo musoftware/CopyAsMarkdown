@@ -2,7 +2,7 @@
   "name": "copy-as-markdown",
   "displayName": "Copy as Markdown",
   "description": "Copy multiple files or folders from VS Code explorer directly into formatted Markdown code blocks with relative paths.",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "publisher": "mahmoudmu",
   "engines": {
     "vscode": "^1.85.0"
@@ -27,7 +27,9 @@
     "url": "https://github.com/mahmoudmu/copy-as-markdown"
   },
   "main": "./out/extension.js",
-  "activationEvents": [],
+  "activationEvents": [
+    "onCommand:copy-as-markdown.copyFiles"
+  ],
   "contributes": {
     "commands": [
       {
@@ -40,13 +42,13 @@
       "explorer/context": [
         {
           "command": "copy-as-markdown.copyFiles",
-          "group": "7_modification"
+          "group": "6_copypath@3"
         }
       ],
       "editor/context": [
         {
           "command": "copy-as-markdown.copyFiles",
-          "group": "7_modification"
+          "group": "6_copypath@3"
         }
       ],
       "editor/title": [
