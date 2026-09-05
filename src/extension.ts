@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs/promises';
 
-const IGNORED_DIRECTORIES = new Set([
+const DEFAULT_IGNORED_DIRECTORIES = new Set([
   'node_modules',
   '.git',
   '.svn',
@@ -16,7 +16,21 @@ const IGNORED_DIRECTORIES = new Set([
   '.vscode',
   '.idea',
   '__pycache__',
-  '.specstory'
+  '.specstory',
+  '.spotlight-v100',
+  '.trashes',
+  '.fseventsd'
+]);
+
+const DEFAULT_IGNORED_FILES = new Set([
+  '.ds_store',
+  'thumbs.db',
+  'desktop.ini',
+  '.directory',
+  '.spotlight-v100',
+  '.trashes',
+  'ehthumbs.db',
+  'ehthumbs_vista.db'
 ]);
 
 const BINARY_EXTENSIONS = new Set([
@@ -26,7 +40,8 @@ const BINARY_EXTENSIONS = new Set([
   '.exe', '.dll', '.so', '.dylib', '.bin',
   '.woff', '.woff2', '.ttf', '.otf', '.eot',
   '.mp3', '.mp4', '.mkv', '.avi', '.mov', '.wav', '.flac',
-  '.pyc', '.pyo', '.class', '.o', '.obj', '.lock'
+  '.pyc', '.pyo', '.class', '.o', '.obj', '.lock',
+  '.db', '.sqlite', '.sqlite3'
 ]);
 
 const EXTENSION_LANGUAGE_MAP: Record<string, string> = {
@@ -108,21 +123,64 @@ function isBinaryFile(filePath: string): boolean {
   return BINARY_EXTENSIONS.has(ext);
 }
 
-async function collectFiles(uri: vscode.Uri, fileList: string[]): Promise<void> {
+function matchesPattern(name: string, pattern: string): boolean {
+  const lowerName = name.toLowerCase();
+  const lowerPattern = pattern.toLowerCase().trim();
+  if (!lowerPattern) {
+    return false;
+  }
+  if (lowerPattern.startsWith('*')) {
+    return lowerName.endsWith(lowerPattern.slice(1));
+  }
+  if (lowerPattern.endsWith('*')) {
+    return lowerName.startsWith(lowerPattern.slice(0, -1));
+  }
+  return lowerName === lowerPattern;
+}
+
+function isIgnoredFile(filePath: string, customPatterns: string[] = []): boolean {
+  const baseName = path.basename(filePath);
+  const lowerBaseName = baseName.toLowerCase();
+
+  // Skip AppleDouble files (._*)
+  if (baseName.startsWith('._')) {
+    return true;
+  }
+
+  // Check default ignored system files
+  if (DEFAULT_IGNORED_FILES.has(lowerBaseName)) {
+    return true;
+  }
+
+  // Check user-configured patterns
+  for (const pattern of customPatterns) {
+    if (matchesPattern(baseName, pattern)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+async function collectFiles(
+  uri: vscode.Uri,
+  fileList: string[],
+  userIgnoredFiles: string[] = []
+): Promise<void> {
   try {
     const stat = await fs.stat(uri.fsPath);
     if (stat.isDirectory()) {
-      const baseName = path.basename(uri.fsPath);
-      if (IGNORED_DIRECTORIES.has(baseName)) {
+      const baseName = path.basename(uri.fsPath).toLowerCase();
+      if (DEFAULT_IGNORED_DIRECTORIES.has(baseName)) {
         return;
       }
       const entries = await fs.readdir(uri.fsPath, { withFileTypes: true });
       for (const entry of entries) {
         const fullChildPath = path.join(uri.fsPath, entry.name);
-        await collectFiles(vscode.Uri.file(fullChildPath), fileList);
+        await collectFiles(vscode.Uri.file(fullChildPath), fileList, userIgnoredFiles);
       }
     } else if (stat.isFile()) {
-      if (!isBinaryFile(uri.fsPath)) {
+      if (!isIgnoredFile(uri.fsPath, userIgnoredFiles) && !isBinaryFile(uri.fsPath)) {
         fileList.push(uri.fsPath);
       }
     }
@@ -207,9 +265,12 @@ export function activate(context: vscode.ExtensionContext) {
         return;
       }
 
+      const config = vscode.workspace.getConfiguration('copyAsMarkdown');
+      const userIgnoredFiles = config.get<string[]>('ignoredFiles', []);
+
       const allFiles: string[] = [];
       for (const uri of initialUris) {
-        await collectFiles(uri, allFiles);
+        await collectFiles(uri, allFiles, userIgnoredFiles);
       }
 
       // Deduplicate file paths
@@ -225,7 +286,6 @@ export function activate(context: vscode.ExtensionContext) {
       const workspaceFolder = vscode.workspace.getWorkspaceFolder(firstUri);
       const workspaceRoot = workspaceFolder?.uri.fsPath || path.dirname(uniqueFiles[0]);
 
-      const config = vscode.workspace.getConfiguration('copyAsMarkdown');
       const includeHeader = config.get<boolean>('includeFileNameAsHeader', true);
       const includeTree = config.get<boolean>('includeFileTree', false);
       const includeLines = config.get<boolean>('includeLineNumbers', false);
@@ -279,7 +339,7 @@ export function activate(context: vscode.ExtensionContext) {
 
       const countMsg = `${fileBlocks.length} file${fileBlocks.length > 1 ? 's' : ''}`;
       const skipMsg = skippedCount > 0 ? ` (${skippedCount} file(s) skipped due to size)` : '';
-      vscode.window.showInformationMessage(`📋 Copied ${countMsg} as Markdown to clipboard!${skipMsg}`);
+      vscode.window.showInformationMessage(`Copied ${countMsg} as Markdown to clipboard!${skipMsg}`);
     }
   );
 

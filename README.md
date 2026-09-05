@@ -1,6 +1,6 @@
 # Copy as Markdown 📝
 
-[![VS Code Extension](https://img.shields.io/badge/VS_Code_Extension-v0.1.2-007ACC?style=flat-square&logo=visual-studio-code&logoColor=white)](https://github.com/musoftware/CopyAsMarkdown)
+[![VS Code Extension](https://img.shields.io/badge/VS_Code_Extension-v0.1.3-007ACC?style=flat-square&logo=visual-studio-code&logoColor=white)](https://github.com/musoftware/CopyAsMarkdown)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Zero Dependencies](https://img.shields.io/badge/Dependencies-0-success?style=flat-square)]()
@@ -17,7 +17,8 @@ Designed especially for sharing code context with **AI & LLMs** (ChatGPT, Claude
 - 🌳 **Recursive Folder Parsing**: Select a directory to recursively copy all text and code files inside with their proper relative workspace paths.
 - 🛡️ **Smart Ignore & Safety**:
   - Automatically skips bulky build folders (`node_modules`, `.git`, `dist`, `out`, `build`, `.next`, `.nuxt`, `vendor`, etc.).
-  - Filters out binary files (images, audio, video, PDFs, archives, executables).
+  - Automatically skips OS junk and metadata files (`.DS_Store`, `Thumbs.db`, `desktop.ini`, AppleDouble `._*` files).
+  - Filters out binary files (images, audio, video, database files, PDFs, archives, executables).
   - Skips oversized files based on configurable size limits (default: 1 MB).
 - 🎨 **Automatic Language Detection**: Accurately maps 35+ file extensions (JS, TS, Python, Rust, Go, PHP/Blade, C++, SQL, Vue, Svelte, and more) to markdown syntax highlighting identifiers.
 - 🌲 **Optional ASCII Directory Tree**: Generates a clean directory overview tree at the top of your copied markdown output.
@@ -93,6 +94,7 @@ Customize the formatting behavior in your VS Code settings (`Ctrl+,` / `Cmd+,` �
 | `copyAsMarkdown.includeFileTree` | `boolean` | `false` | Include an ASCII directory tree of copied files at the top of the output. |
 | `copyAsMarkdown.includeLineNumbers` | `boolean` | `false` | Add padded line numbers (`1 | code...`) to each code block. |
 | `copyAsMarkdown.maxFileSizeKB` | `number` | `1024` | Maximum file size in KB to read (skips files larger than this limit). |
+| `copyAsMarkdown.ignoredFiles` | `string[]` | `[".DS_Store", "Thumbs.db", "desktop.ini"]` | File names or patterns to ignore when collecting files. |
 
 ---
 

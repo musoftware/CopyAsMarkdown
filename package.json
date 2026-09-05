@@ -2,7 +2,7 @@
   "name": "copy-as-markdown",
   "displayName": "Copy as Markdown",
   "description": "Copy multiple files or folders from VS Code explorer directly into formatted Markdown code blocks with relative paths.",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "publisher": "mahmoudmu",
   "engines": {
     "vscode": "^1.85.0"
@@ -80,6 +80,18 @@
           "type": "number",
           "default": 1024,
           "description": "Maximum file size in KB to read (files exceeding this limit will be skipped)."
+        },
+        "copyAsMarkdown.ignoredFiles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            ".DS_Store",
+            "Thumbs.db",
+            "desktop.ini"
+          ],
+          "description": "List of file names or patterns to ignore when collecting files (e.g. .DS_Store, Thumbs.db, *.log)."
         }
       }
     }
