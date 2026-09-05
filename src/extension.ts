@@ -30,7 +30,15 @@ const DEFAULT_IGNORED_FILES = new Set([
   '.spotlight-v100',
   '.trashes',
   'ehthumbs.db',
-  'ehthumbs_vista.db'
+  'ehthumbs_vista.db',
+  'package-lock.json',
+  'yarn.lock',
+  'pnpm-lock.yaml',
+  'bun.lockb',
+  'composer.lock',
+  'cargo.lock',
+  'gemfile.lock',
+  'poetry.lock'
 ]);
 
 const BINARY_EXTENSIONS = new Set([
@@ -135,6 +143,9 @@ function matchesPattern(name: string, pattern: string): boolean {
   if (lowerPattern.endsWith('*')) {
     return lowerName.startsWith(lowerPattern.slice(0, -1));
   }
+  if (!lowerPattern.includes('.') && (lowerName === lowerPattern || lowerName.startsWith(`${lowerPattern}.`))) {
+    return true;
+  }
   return lowerName === lowerPattern;
 }
 
@@ -147,7 +158,12 @@ function isIgnoredFile(filePath: string, customPatterns: string[] = []): boolean
     return true;
   }
 
-  // Check default ignored system files
+  // Skip package-lock files (package-lock.json, package-lock, etc.)
+  if (lowerBaseName === 'package-lock' || lowerBaseName.startsWith('package-lock.')) {
+    return true;
+  }
+
+  // Check default ignored system and lock files
   if (DEFAULT_IGNORED_FILES.has(lowerBaseName)) {
     return true;
   }
@@ -162,25 +178,64 @@ function isIgnoredFile(filePath: string, customPatterns: string[] = []): boolean
   return false;
 }
 
+function isIgnoredDirectory(dirPath: string, customPatterns: string[] = []): boolean {
+  const baseName = path.basename(dirPath);
+  const lowerBaseName = baseName.toLowerCase();
+
+  if (DEFAULT_IGNORED_DIRECTORIES.has(lowerBaseName)) {
+    return true;
+  }
+
+  for (const pattern of customPatterns) {
+    if (matchesPattern(baseName, pattern)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function isInIgnoredDirectory(filePath: string, customPatterns: string[] = []): boolean {
+  const normalized = path.normalize(filePath);
+  const parts = normalized.split(path.sep);
+
+  for (const part of parts) {
+    const lowerPart = part.toLowerCase();
+    if (DEFAULT_IGNORED_DIRECTORIES.has(lowerPart)) {
+      return true;
+    }
+    for (const pattern of customPatterns) {
+      if (matchesPattern(part, pattern)) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
 async function collectFiles(
   uri: vscode.Uri,
   fileList: string[],
-  userIgnoredFiles: string[] = []
+  userIgnoredPatterns: string[] = []
 ): Promise<void> {
   try {
     const stat = await fs.stat(uri.fsPath);
     if (stat.isDirectory()) {
-      const baseName = path.basename(uri.fsPath).toLowerCase();
-      if (DEFAULT_IGNORED_DIRECTORIES.has(baseName)) {
+      if (isIgnoredDirectory(uri.fsPath, userIgnoredPatterns)) {
         return;
       }
       const entries = await fs.readdir(uri.fsPath, { withFileTypes: true });
       for (const entry of entries) {
         const fullChildPath = path.join(uri.fsPath, entry.name);
-        await collectFiles(vscode.Uri.file(fullChildPath), fileList, userIgnoredFiles);
+        await collectFiles(vscode.Uri.file(fullChildPath), fileList, userIgnoredPatterns);
       }
     } else if (stat.isFile()) {
-      if (!isIgnoredFile(uri.fsPath, userIgnoredFiles) && !isBinaryFile(uri.fsPath)) {
+      if (
+        !isInIgnoredDirectory(uri.fsPath, userIgnoredPatterns) &&
+        !isIgnoredFile(uri.fsPath, userIgnoredPatterns) &&
+        !isBinaryFile(uri.fsPath)
+      ) {
         fileList.push(uri.fsPath);
       }
     }

@@ -17,6 +17,7 @@ Designed especially for sharing code context with **AI & LLMs** (ChatGPT, Claude
 - 🌳 **Recursive Folder Parsing**: Select a directory to recursively copy all text and code files inside with their proper relative workspace paths.
 - 🛡️ **Smart Ignore & Safety**:
   - Automatically skips bulky build folders (`node_modules`, `.git`, `dist`, `out`, `build`, `.next`, `.nuxt`, `vendor`, etc.).
+  - Automatically skips package lock files (`package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`, `bun.lockb`, `composer.lock`, etc.).
   - Automatically skips OS junk and metadata files (`.DS_Store`, `Thumbs.db`, `desktop.ini`, AppleDouble `._*` files).
   - Filters out binary files (images, audio, video, database files, PDFs, archives, executables).
   - Skips oversized files based on configurable size limits (default: 1 MB).
@@ -94,7 +95,7 @@ Customize the formatting behavior in your VS Code settings (`Ctrl+,` / `Cmd+,` �
 | `copyAsMarkdown.includeFileTree` | `boolean` | `false` | Include an ASCII directory tree of copied files at the top of the output. |
 | `copyAsMarkdown.includeLineNumbers` | `boolean` | `false` | Add padded line numbers (`1 | code...`) to each code block. |
 | `copyAsMarkdown.maxFileSizeKB` | `number` | `1024` | Maximum file size in KB to read (skips files larger than this limit). |
-| `copyAsMarkdown.ignoredFiles` | `string[]` | `[".DS_Store", "Thumbs.db", "desktop.ini"]` | File names or patterns to ignore when collecting files. |
+| `copyAsMarkdown.ignoredFiles` | `string[]` | `[".DS_Store", "Thumbs.db", "desktop.ini", "package-lock.json", "yarn.lock", "pnpm-lock.yaml"]` | File names or patterns to ignore when collecting files. |
 
 ---
 

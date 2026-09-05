@@ -89,9 +89,12 @@
           "default": [
             ".DS_Store",
             "Thumbs.db",
-            "desktop.ini"
+            "desktop.ini",
+            "package-lock.json",
+            "yarn.lock",
+            "pnpm-lock.yaml"
           ],
-          "description": "List of file names or patterns to ignore when collecting files (e.g. .DS_Store, Thumbs.db, *.log)."
+          "description": "List of file names or patterns to ignore when collecting files (e.g. .DS_Store, Thumbs.db, package-lock.json, *.log)."
         }
       }
     }
