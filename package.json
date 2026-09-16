@@ -28,7 +28,8 @@
   },
   "main": "./out/extension.js",
   "activationEvents": [
-    "onCommand:copy-as-markdown.copyFiles"
+    "onCommand:copy-as-markdown.copyFiles",
+    "onCommand:copy-as-markdown.copyTree"
   ],
   "contributes": {
     "commands": [
@@ -36,6 +37,11 @@
         "command": "copy-as-markdown.copyFiles",
         "title": "Copy as Markdown",
         "icon": "$(markdown)"
+      },
+      {
+        "command": "copy-as-markdown.copyTree",
+        "title": "Copy Structure as Tree",
+        "icon": "$(list-tree)"
       }
     ],
     "menus": {
@@ -43,17 +49,29 @@
         {
           "command": "copy-as-markdown.copyFiles",
           "group": "6_copypath@3"
+        },
+        {
+          "command": "copy-as-markdown.copyTree",
+          "group": "6_copypath@4"
         }
       ],
       "editor/context": [
         {
           "command": "copy-as-markdown.copyFiles",
           "group": "6_copypath@3"
+        },
+        {
+          "command": "copy-as-markdown.copyTree",
+          "group": "6_copypath@4"
         }
       ],
       "editor/title": [
         {
           "command": "copy-as-markdown.copyFiles",
+          "group": "navigation"
+        },
+        {
+          "command": "copy-as-markdown.copyTree",
           "group": "navigation"
         }
       ]
@@ -61,6 +79,15 @@
     "configuration": {
       "title": "Copy as Markdown",
       "properties": {
+        "copyAsMarkdown.treeFormat": {
+          "type": "string",
+          "enum": [
+            "markdownBlock",
+            "plainText"
+          ],
+          "default": "markdownBlock",
+          "description": "Format for copied structure tree: 'markdownBlock' (wrapped in ```text code block) or 'plainText' (raw ASCII text)."
+        },
         "copyAsMarkdown.includeFileNameAsHeader": {
           "type": "boolean",
           "default": true,

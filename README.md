@@ -14,6 +14,7 @@ Designed especially for sharing code context with **AI & LLMs** (ChatGPT, Claude
 ## ⚡ Key Features
 
 - 📁 **Multi-File & Folder Selection**: Select multiple files or entire directories from Explorer (`Ctrl` / `Cmd` + Click or `Shift` + Click), right-click and copy instantly.
+- 🌲 **Copy Structure as Tree**: Right-click any folder or selection to copy an ASCII directory tree directly to the clipboard without copying file contents.
 - 🌳 **Recursive Folder Parsing**: Select a directory to recursively copy all text and code files inside with their proper relative workspace paths.
 - 🛡️ **Smart Ignore & Safety**:
   - Automatically skips bulky build folders (`node_modules`, `.git`, `dist`, `out`, `build`, `.next`, `.nuxt`, `vendor`, etc.).
@@ -70,18 +71,20 @@ src/
 
 ## 🚀 How to Use
 
-### Method 1: File Explorer (Multiple Files & Folders)
+### Method 1: File Explorer (Files & Folders)
 1. In the VS Code Explorer sidebar, select one or multiple files/folders (`Ctrl` / `Cmd` + Click).
-2. Right-click and choose **Copy as Markdown**.
-3. Paste (`Ctrl+V` / `Cmd+V`) into your AI chat, GitHub issue, or documentation editor.
+2. Right-click and choose:
+   - **Copy as Markdown**: Copies full contents of all selected files into formatted markdown code blocks.
+   - **Copy Structure as Tree**: Copies only the ASCII directory tree structure of the selection.
+3. Paste (`Ctrl+V` / `Cmd+V`) directly into your prompt, chat, or documentation.
 
 ### Method 2: Active Editor Tab
-- Click the **Copy as Markdown** icon ($(markdown)) in the top-right corner of the editor title bar.
-- Or right-click anywhere inside the open editor and select **Copy as Markdown**.
+- Right-click anywhere inside the open editor and select **Copy as Markdown** or **Copy Structure as Tree**.
+- Or use the title bar action icon in the top-right corner.
 
 ### Method 3: Command Palette
 1. Press `Ctrl+Shift+P` (or `Cmd+Shift+P` on macOS).
-2. Type `Copy as Markdown` and press `Enter`.
+2. Type `Copy as Markdown` or `Copy Structure as Tree` and press `Enter`.
 
 ---
 
@@ -91,6 +94,7 @@ Customize the formatting behavior in your VS Code settings (`Ctrl+,` / `Cmd+,` �
 
 | Setting | Type | Default | Description |
 | :--- | :---: | :---: | :--- |
+| `copyAsMarkdown.treeFormat` | `string` | `"markdownBlock"` | Format for copied tree: `"markdownBlock"` (fenced code block) or `"plainText"` (raw ASCII text). |
 | `copyAsMarkdown.includeFileNameAsHeader` | `boolean` | `true` | Include the relative file path as an `### `path/to/file.ext`` header. |
 | `copyAsMarkdown.includeFileTree` | `boolean` | `false` | Include an ASCII directory tree of copied files at the top of the output. |
 | `copyAsMarkdown.includeLineNumbers` | `boolean` | `false` | Add padded line numbers (`1 | code...`) to each code block. |
@@ -104,8 +108,8 @@ Customize the formatting behavior in your VS Code settings (`Ctrl+,` / `Cmd+,` �
 The extension automatically applies correct code block syntax tags for:
 
 - **Web / Frontend**: TypeScript (`.ts`, `.tsx`), JavaScript (`.js`, `.jsx`, `.mjs`, `.cjs`), HTML, CSS, SCSS, SASS, LESS, Vue, Svelte
-- **Backend / Systems**: Python (`.py`), Go (`.go`), Rust (`.rs`), Java (`.java`), C# (`.cs`), C / C++ (`.c`, `.cpp`, `.h`, `.hpp`), PHP & Laravel Blade (`.php`, `.blade.php`), Ruby (`.rb`), Kotlin (`.kt`), Swift (`.swift`), Dart (`.dart`)
-- **Data & Config**: JSON, JSONC, YAML, TOML, XML, SQL, INI, `.env`, GraphQL, Protocol Buffers (`.proto`)
+- **Backend / Systems**: C# (`.cs`, `.csx`), Visual Basic (`.vb`, `.vbs`), F# (`.fs`, `.fsx`), Python (`.py`), Go (`.go`), Rust (`.rs`), Java (`.java`), C / C++ (`.c`, `.cpp`, `.h`, `.hpp`), PHP & Laravel Blade (`.php`, `.blade.php`), Ruby (`.rb`), Kotlin (`.kt`), Swift (`.swift`), Dart (`.dart`)
+- **Data & Config**: Visual Studio Solutions (`.sln`, `.slnx`), .NET Projects (`.csproj`, `.vbproj`, `.fsproj`, `.props`, `.targets`, `.resx`), JSON, JSONC, YAML, TOML, XML, SQL, INI, `.env`, GraphQL, Protocol Buffers (`.proto`)
 - **Shell & DevOps**: Bash / Shell (`.sh`, `.zsh`), PowerShell (`.ps1`), Dockerfile
 
 ---
