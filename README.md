@@ -1,6 +1,6 @@
-# Copy as Markdown 📝
+# Copy as Markdown
 
-[![VS Code Extension](https://img.shields.io/badge/VS_Code_Extension-v0.1.3-007ACC?style=flat-square&logo=visual-studio-code&logoColor=white)](https://github.com/musoftware/CopyAsMarkdown)
+[![VS Code Extension](https://img.shields.io/badge/VS_Code_Extension-v0.1.5-007ACC?style=flat-square&logo=visual-studio-code&logoColor=white)](https://github.com/musoftware/CopyAsMarkdown)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Zero Dependencies](https://img.shields.io/badge/Dependencies-0-success?style=flat-square)]()
@@ -11,11 +11,12 @@ Designed especially for sharing code context with **AI & LLMs** (ChatGPT, Claude
 
 ---
 
-## ⚡ Key Features
+## Key Features
 
-- 📁 **Multi-File & Folder Selection**: Select multiple files or entire directories from Explorer (`Ctrl` / `Cmd` + Click or `Shift` + Click), right-click and copy instantly.
-- 🌲 **Copy Structure as Tree**: Right-click any folder or selection to copy an ASCII directory tree directly to the clipboard without copying file contents.
-- 🌳 **Recursive Folder Parsing**: Select a directory to recursively copy all text and code files inside with their proper relative workspace paths.
+- **Multi-File & Folder Selection**: Select multiple files or entire directories from Explorer (`Ctrl` / `Cmd` + Click or `Shift` + Click), right-click and copy instantly.
+- **Copy as Zip (.txt)**: Compresses selected files and folders into an archive with a `.txt` extension and places it on your system clipboard as an actual file drop (CF_HDROP). Paste (`Ctrl+V`) directly into AI chat inputs (ChatGPT, Claude, etc.), chat apps, or Windows Explorer.
+- **Copy Structure as Tree**: Right-click any folder or selection to copy an ASCII directory tree directly to the clipboard without copying file contents.
+- **Recursive Folder Parsing**: Select a directory to recursively copy all text and code files inside with their proper relative workspace paths.
 - 🛡️ **Smart Ignore & Safety**:
   - Automatically skips bulky build folders (`node_modules`, `.git`, `dist`, `out`, `build`, `.next`, `.nuxt`, `vendor`, etc.).
   - Automatically skips package lock files (`package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`, `bun.lockb`, `composer.lock`, etc.).
@@ -76,15 +77,16 @@ src/
 2. Right-click and choose:
    - **Copy as Markdown**: Copies full contents of all selected files into formatted markdown code blocks.
    - **Copy Structure as Tree**: Copies only the ASCII directory tree structure of the selection.
+   - **Copy as Zip (.txt)**: Creates a compressed archive with `.txt` extension and copies the file directly to your clipboard for instant pasting (`Ctrl+V`).
 3. Paste (`Ctrl+V` / `Cmd+V`) directly into your prompt, chat, or documentation.
 
 ### Method 2: Active Editor Tab
-- Right-click anywhere inside the open editor and select **Copy as Markdown** or **Copy Structure as Tree**.
+- Right-click anywhere inside the open editor and select **Copy as Markdown**, **Copy Structure as Tree**, or **Copy as Zip (.txt)**.
 - Or use the title bar action icon in the top-right corner.
 
 ### Method 3: Command Palette
 1. Press `Ctrl+Shift+P` (or `Cmd+Shift+P` on macOS).
-2. Type `Copy as Markdown` or `Copy Structure as Tree` and press `Enter`.
+2. Type `Copy as Zip (.txt)`, `Copy as Markdown`, or `Copy Structure as Tree` and press `Enter`.
 
 ---
 

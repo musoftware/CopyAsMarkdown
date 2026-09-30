@@ -2,7 +2,7 @@
   "name": "copy-as-markdown",
   "displayName": "Copy as Markdown",
   "description": "Copy multiple files or folders from VS Code explorer directly into formatted Markdown code blocks with relative paths.",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "publisher": "mahmoudmu",
   "engines": {
     "vscode": "^1.85.0"
@@ -29,7 +29,8 @@
   "main": "./out/extension.js",
   "activationEvents": [
     "onCommand:copy-as-markdown.copyFiles",
-    "onCommand:copy-as-markdown.copyTree"
+    "onCommand:copy-as-markdown.copyTree",
+    "onCommand:copy-as-markdown.copyZip"
   ],
   "contributes": {
     "commands": [
@@ -42,6 +43,11 @@
         "command": "copy-as-markdown.copyTree",
         "title": "Copy Structure as Tree",
         "icon": "$(list-tree)"
+      },
+      {
+        "command": "copy-as-markdown.copyZip",
+        "title": "Copy as Zip (.txt)",
+        "icon": "$(file-zip)"
       }
     ],
     "menus": {
@@ -53,6 +59,10 @@
         {
           "command": "copy-as-markdown.copyTree",
           "group": "6_copypath@4"
+        },
+        {
+          "command": "copy-as-markdown.copyZip",
+          "group": "6_copypath@5"
         }
       ],
       "editor/context": [
@@ -63,6 +73,10 @@
         {
           "command": "copy-as-markdown.copyTree",
           "group": "6_copypath@4"
+        },
+        {
+          "command": "copy-as-markdown.copyZip",
+          "group": "6_copypath@5"
         }
       ],
       "editor/title": [
@@ -72,6 +86,10 @@
         },
         {
           "command": "copy-as-markdown.copyTree",
+          "group": "navigation"
+        },
+        {
+          "command": "copy-as-markdown.copyZip",
           "group": "navigation"
         }
       ]

@@ -4,9 +4,12 @@ src/**
 tsconfig.json
 .gitignore
 .specstory/**
+.kilo/**
 *.map
 !out/**
 **/.DS_Store
 **/Thumbs.db
 **/desktop.ini
 **/package-lock.json
+install.bat
+install.sh

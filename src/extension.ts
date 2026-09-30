@@ -1,6 +1,9 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs/promises';
+import * as os from 'os';
+import { buildZipBuffer, ZipEntryInput } from './zipBuilder';
+import { copyFileToClipboard } from './clipboardFile';
 
 const DEFAULT_IGNORED_DIRECTORIES = new Set([
   'node_modules',
@@ -767,10 +770,121 @@ async function copyTreeHandler(clickedUri?: vscode.Uri, selectedUris?: vscode.Ur
   vscode.window.showInformationMessage('Copied file structure tree to clipboard!');
 }
 
+function resolveCommonRoot(uris: vscode.Uri[]): string {
+  if (uris.length === 0) {
+    return '';
+  }
+  const workspaceFolder = vscode.workspace.getWorkspaceFolder(uris[0]);
+  if (workspaceFolder) {
+    return workspaceFolder.uri.fsPath;
+  }
+  return path.dirname(uris[0].fsPath);
+}
+
+function sanitizeFileName(name: string): string {
+  return name.replace(/[/\\?%*:|"<>]/g, '_').trim();
+}
+
+function determineZipFileName(initialUris: vscode.Uri[], baseRoot: string): string {
+  if (initialUris.length === 1) {
+    const rawName = path.basename(initialUris[0].fsPath);
+    const parsed = path.parse(rawName);
+    const safeBase = sanitizeFileName(parsed.name || rawName);
+    return `${safeBase}.txt`;
+  }
+
+  const workspaceName = baseRoot ? path.basename(baseRoot) : '';
+  const safeName = sanitizeFileName(workspaceName) || 'archive';
+  return `${safeName}.txt`;
+}
+
+async function collectZipEntries(
+  filePaths: string[],
+  baseRoot: string,
+  maxFileSizeBytes: number
+): Promise<{ entries: ZipEntryInput[]; skippedCount: number }> {
+  const entries: ZipEntryInput[] = [];
+  let skippedCount = 0;
+
+  for (const filePath of filePaths) {
+    const stat = await fs.stat(filePath);
+    if (stat.size > maxFileSizeBytes) {
+      skippedCount++;
+      continue;
+    }
+    const content = await fs.readFile(filePath);
+    const relativePath = path.relative(baseRoot, filePath).replace(/\\/g, '/');
+    entries.push({ relativePath, content, mtime: stat.mtime });
+  }
+
+  return { entries, skippedCount };
+}
+
+async function writeAndCopyZipFile(fileName: string, zipBuffer: Buffer): Promise<string> {
+  const tempFilePath = path.join(os.tmpdir(), fileName);
+  await fs.writeFile(tempFilePath, zipBuffer);
+  await copyFileToClipboard(tempFilePath);
+  return tempFilePath;
+}
+
+async function notifyZipSuccess(
+  count: number,
+  fileName: string,
+  tempFilePath: string,
+  skippedCount: number
+): Promise<void> {
+  const countMsg = `${count} file${count > 1 ? 's' : ''}`;
+  const skipMsg = skippedCount > 0 ? ` (${skippedCount} file(s) skipped due to size)` : '';
+  const message = `Copied ${countMsg} as ${fileName} to clipboard!${skipMsg}`;
+
+  const action = await vscode.window.showInformationMessage(message, 'Reveal in File Explorer');
+  if (action === 'Reveal in File Explorer') {
+    await vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(tempFilePath));
+  }
+}
+
+async function copyZipHandler(clickedUri?: vscode.Uri, selectedUris?: vscode.Uri[]): Promise<void> {
+  const initialUris = resolveInitialUris(clickedUri, selectedUris);
+  if (initialUris.length === 0) {
+    vscode.window.showWarningMessage('No files or folders selected.');
+    return;
+  }
+
+  const config = vscode.workspace.getConfiguration('copyAsMarkdown');
+  const userIgnoredFiles = config.get<string[]>('ignoredFiles', []);
+  const allFiles: string[] = [];
+
+  for (const uri of initialUris) {
+    await collectFiles(uri, allFiles, userIgnoredFiles);
+  }
+
+  const uniqueFiles = Array.from(new Set(allFiles));
+  if (uniqueFiles.length === 0) {
+    vscode.window.showWarningMessage('No valid text files found to copy.');
+    return;
+  }
+
+  const baseRoot = resolveCommonRoot(initialUris);
+  const maxFileSizeKB = config.get<number>('maxFileSizeKB', 1024);
+  const { entries, skippedCount } = await collectZipEntries(uniqueFiles, baseRoot, maxFileSizeKB * 1024);
+
+  if (entries.length === 0) {
+    vscode.window.showErrorMessage('Failed to read selected files for zip.');
+    return;
+  }
+
+  const fileName = determineZipFileName(initialUris, baseRoot);
+  const zipBuffer = buildZipBuffer(entries);
+  const tempFilePath = await writeAndCopyZipFile(fileName, zipBuffer);
+
+  await notifyZipSuccess(entries.length, fileName, tempFilePath, skippedCount);
+}
+
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.commands.registerCommand('copy-as-markdown.copyFiles', copyFilesHandler),
-    vscode.commands.registerCommand('copy-as-markdown.copyTree', copyTreeHandler)
+    vscode.commands.registerCommand('copy-as-markdown.copyTree', copyTreeHandler),
+    vscode.commands.registerCommand('copy-as-markdown.copyZip', copyZipHandler)
   );
 }
 
