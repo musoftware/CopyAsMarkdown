@@ -1,6 +1,6 @@
 # Copy as Markdown
 
-[![VS Code Extension](https://img.shields.io/badge/VS_Code_Extension-v0.1.5-007ACC?style=flat-square&logo=visual-studio-code&logoColor=white)](https://github.com/musoftware/CopyAsMarkdown)
+[![VS Code Extension](https://img.shields.io/badge/VS_Code_Extension-v0.1.6-007ACC?style=flat-square&logo=visual-studio-code&logoColor=white)](https://github.com/musoftware/CopyAsMarkdown)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Zero Dependencies](https://img.shields.io/badge/Dependencies-0-success?style=flat-square)]()
@@ -14,23 +14,25 @@ Designed especially for sharing code context with **AI & LLMs** (ChatGPT, Claude
 ## Key Features
 
 - **Multi-File & Folder Selection**: Select multiple files or entire directories from Explorer (`Ctrl` / `Cmd` + Click or `Shift` + Click), right-click and copy instantly.
+- **Copy as Markdown**: Copies full contents of all selected files into formatted markdown text blocks directly to your clipboard.
+- **Copy as Markdown (.md)**: Generates the full formatted markdown code blocks into a `.md` file and places it on your system clipboard as an actual file drop (CF_HDROP). Paste (`Ctrl+V`) directly into AI chat inputs (ChatGPT, Claude, etc.), chat apps, or Windows Explorer as a file attachment.
 - **Copy as Zip (.txt)**: Compresses selected files and folders into an archive with a `.txt` extension and places it on your system clipboard as an actual file drop (CF_HDROP). Paste (`Ctrl+V`) directly into AI chat inputs (ChatGPT, Claude, etc.), chat apps, or Windows Explorer.
 - **Copy Structure as Tree**: Right-click any folder or selection to copy an ASCII directory tree directly to the clipboard without copying file contents.
 - **Recursive Folder Parsing**: Select a directory to recursively copy all text and code files inside with their proper relative workspace paths.
-- 🛡️ **Smart Ignore & Safety**:
+- **Smart Ignore & Safety**:
   - Automatically skips bulky build folders (`node_modules`, `.git`, `dist`, `out`, `build`, `.next`, `.nuxt`, `vendor`, etc.).
   - Automatically skips package lock files (`package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`, `bun.lockb`, `composer.lock`, etc.).
   - Automatically skips OS junk and metadata files (`.DS_Store`, `Thumbs.db`, `desktop.ini`, AppleDouble `._*` files).
   - Filters out binary files (images, audio, video, database files, PDFs, archives, executables).
   - Skips oversized files based on configurable size limits (default: 1 MB).
-- 🎨 **Automatic Language Detection**: Accurately maps 35+ file extensions (JS, TS, Python, Rust, Go, PHP/Blade, C++, SQL, Vue, Svelte, and more) to markdown syntax highlighting identifiers.
-- 🌲 **Optional ASCII Directory Tree**: Generates a clean directory overview tree at the top of your copied markdown output.
-- 🔢 **Optional Line Numbers**: Automatically adds padded line numbers to code blocks for code review or line-specific LLM discussions.
-- 📍 **Everywhere in the UI**: Access via Explorer context menu, Editor tab title bar, Editor context menu, or Command Palette.
+- **Automatic Language Detection**: Accurately maps 35+ file extensions (JS, TS, Python, Rust, Go, PHP/Blade, C++, SQL, Vue, Svelte, and more) to markdown syntax highlighting identifiers.
+- **Optional ASCII Directory Tree**: Generates a clean directory overview tree at the top of your copied markdown output.
+- **Optional Line Numbers**: Automatically adds padded line numbers to code blocks for code review or line-specific LLM discussions.
+- **Everywhere in the UI**: Access via Explorer context menu, Editor tab title bar, Editor context menu, or Command Palette.
 
 ---
 
-## 📋 Markdown Output Preview
+## Markdown Output Preview
 
 When you copy multiple files, your clipboard is formatted ready for immediate pasting:
 
@@ -70,23 +72,24 @@ src/
 
 ---
 
-## 🚀 How to Use
+## How to Use
 
 ### Method 1: File Explorer (Files & Folders)
 1. In the VS Code Explorer sidebar, select one or multiple files/folders (`Ctrl` / `Cmd` + Click).
 2. Right-click and choose:
-   - **Copy as Markdown**: Copies full contents of all selected files into formatted markdown code blocks.
+   - **Copy as Markdown**: Copies full contents of all selected files into formatted markdown text blocks.
+   - **Copy as Markdown (.md)**: Generates a `.md` file containing all formatted code blocks and copies the file directly to your clipboard for instant attachment pasting (`Ctrl+V`).
    - **Copy Structure as Tree**: Copies only the ASCII directory tree structure of the selection.
    - **Copy as Zip (.txt)**: Creates a compressed archive with `.txt` extension and copies the file directly to your clipboard for instant pasting (`Ctrl+V`).
 3. Paste (`Ctrl+V` / `Cmd+V`) directly into your prompt, chat, or documentation.
 
 ### Method 2: Active Editor Tab
-- Right-click anywhere inside the open editor and select **Copy as Markdown**, **Copy Structure as Tree**, or **Copy as Zip (.txt)**.
+- Right-click anywhere inside the open editor and select **Copy as Markdown**, **Copy as Markdown (.md)**, **Copy Structure as Tree**, or **Copy as Zip (.txt)**.
 - Or use the title bar action icon in the top-right corner.
 
 ### Method 3: Command Palette
 1. Press `Ctrl+Shift+P` (or `Cmd+Shift+P` on macOS).
-2. Type `Copy as Zip (.txt)`, `Copy as Markdown`, or `Copy Structure as Tree` and press `Enter`.
+2. Type `Copy as Markdown (.md)`, `Copy as Markdown`, `Copy as Zip (.txt)`, or `Copy Structure as Tree` and press `Enter`.
 
 ---
 

@@ -2,7 +2,7 @@
   "name": "copy-as-markdown",
   "displayName": "Copy as Markdown",
   "description": "Copy multiple files or folders from VS Code explorer directly into formatted Markdown code blocks with relative paths.",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "publisher": "mahmoudmu",
   "engines": {
     "vscode": "^1.85.0"
@@ -29,6 +29,7 @@
   "main": "./out/extension.js",
   "activationEvents": [
     "onCommand:copy-as-markdown.copyFiles",
+    "onCommand:copy-as-markdown.copyMarkdownFile",
     "onCommand:copy-as-markdown.copyTree",
     "onCommand:copy-as-markdown.copyZip"
   ],
@@ -38,6 +39,11 @@
         "command": "copy-as-markdown.copyFiles",
         "title": "Copy as Markdown",
         "icon": "$(markdown)"
+      },
+      {
+        "command": "copy-as-markdown.copyMarkdownFile",
+        "title": "Copy as Markdown (.md)",
+        "icon": "$(file-code)"
       },
       {
         "command": "copy-as-markdown.copyTree",
@@ -57,12 +63,16 @@
           "group": "6_copypath@3"
         },
         {
-          "command": "copy-as-markdown.copyTree",
+          "command": "copy-as-markdown.copyMarkdownFile",
           "group": "6_copypath@4"
         },
         {
-          "command": "copy-as-markdown.copyZip",
+          "command": "copy-as-markdown.copyTree",
           "group": "6_copypath@5"
+        },
+        {
+          "command": "copy-as-markdown.copyZip",
+          "group": "6_copypath@6"
         }
       ],
       "editor/context": [
@@ -71,26 +81,34 @@
           "group": "6_copypath@3"
         },
         {
-          "command": "copy-as-markdown.copyTree",
+          "command": "copy-as-markdown.copyMarkdownFile",
           "group": "6_copypath@4"
         },
         {
-          "command": "copy-as-markdown.copyZip",
+          "command": "copy-as-markdown.copyTree",
           "group": "6_copypath@5"
+        },
+        {
+          "command": "copy-as-markdown.copyZip",
+          "group": "6_copypath@6"
         }
       ],
       "editor/title": [
         {
           "command": "copy-as-markdown.copyFiles",
-          "group": "navigation"
+          "group": "navigation@1"
+        },
+        {
+          "command": "copy-as-markdown.copyMarkdownFile",
+          "group": "navigation@2"
         },
         {
           "command": "copy-as-markdown.copyTree",
-          "group": "navigation"
+          "group": "navigation@3"
         },
         {
           "command": "copy-as-markdown.copyZip",
-          "group": "navigation"
+          "group": "navigation@4"
         }
       ]
     },

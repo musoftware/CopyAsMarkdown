@@ -651,14 +651,16 @@ async function readFormattedFileBlock(
   return { relativePath, block };
 }
 
-async function copyFilesHandler(clickedUri?: vscode.Uri, selectedUris?: vscode.Uri[]): Promise<void> {
-  const initialUris = resolveInitialUris(clickedUri, selectedUris);
-  if (initialUris.length === 0) {
-    vscode.window.showWarningMessage('No files selected.');
-    return;
-  }
+interface MarkdownDocumentResult {
+  markdown: string;
+  count: number;
+  skippedCount: number;
+}
 
-  const config = vscode.workspace.getConfiguration('copyAsMarkdown');
+async function collectUniqueFiles(
+  initialUris: vscode.Uri[],
+  config: vscode.WorkspaceConfiguration
+): Promise<string[]> {
   const userIgnoredFiles = config.get<string[]>('ignoredFiles', []);
   const allFiles: string[] = [];
 
@@ -666,16 +668,14 @@ async function copyFilesHandler(clickedUri?: vscode.Uri, selectedUris?: vscode.U
     await collectFiles(uri, allFiles, userIgnoredFiles);
   }
 
-  const uniqueFiles = Array.from(new Set(allFiles));
-  if (uniqueFiles.length === 0) {
-    vscode.window.showWarningMessage('No valid text files found to copy.');
-    return;
-  }
+  return Array.from(new Set(allFiles));
+}
 
-  const firstUri = vscode.Uri.file(uniqueFiles[0]);
-  const workspaceFolder = vscode.workspace.getWorkspaceFolder(firstUri);
-  const workspaceRoot = workspaceFolder?.uri.fsPath || path.dirname(uniqueFiles[0]);
-
+async function buildMarkdownDocument(
+  uniqueFiles: string[],
+  baseRoot: string,
+  config: vscode.WorkspaceConfiguration
+): Promise<MarkdownDocumentResult | null> {
   const includeHeader = config.get<boolean>('includeFileNameAsHeader', true);
   const includeTree = config.get<boolean>('includeFileTree', false);
   const includeLines = config.get<boolean>('includeLineNumbers', false);
@@ -693,7 +693,7 @@ async function copyFilesHandler(clickedUri?: vscode.Uri, selectedUris?: vscode.U
         skippedCount++;
         continue;
       }
-      const { relativePath, block } = await readFormattedFileBlock(filePath, workspaceRoot, includeHeader, includeLines);
+      const { relativePath, block } = await readFormattedFileBlock(filePath, baseRoot, includeHeader, includeLines);
       relativePaths.push(relativePath);
       fileBlocks.push(block);
     } catch (err) {
@@ -702,8 +702,7 @@ async function copyFilesHandler(clickedUri?: vscode.Uri, selectedUris?: vscode.U
   }
 
   if (fileBlocks.length === 0) {
-    vscode.window.showErrorMessage('Failed to read selected files.');
-    return;
+    return null;
   }
 
   let markdownOutput = '';
@@ -713,11 +712,65 @@ async function copyFilesHandler(clickedUri?: vscode.Uri, selectedUris?: vscode.U
   }
   markdownOutput += fileBlocks.join('\n\n');
 
-  await vscode.env.clipboard.writeText(markdownOutput.trim());
+  return {
+    markdown: markdownOutput.trim(),
+    count: fileBlocks.length,
+    skippedCount
+  };
+}
 
-  const countMsg = `${fileBlocks.length} file${fileBlocks.length > 1 ? 's' : ''}`;
-  const skipMsg = skippedCount > 0 ? ` (${skippedCount} file(s) skipped due to size)` : '';
+async function copyFilesHandler(clickedUri?: vscode.Uri, selectedUris?: vscode.Uri[]): Promise<void> {
+  const initialUris = resolveInitialUris(clickedUri, selectedUris);
+  if (initialUris.length === 0) {
+    vscode.window.showWarningMessage('No files selected.');
+    return;
+  }
+
+  const config = vscode.workspace.getConfiguration('copyAsMarkdown');
+  const uniqueFiles = await collectUniqueFiles(initialUris, config);
+  if (uniqueFiles.length === 0) {
+    vscode.window.showWarningMessage('No valid text files found to copy.');
+    return;
+  }
+
+  const baseRoot = resolveCommonRoot(initialUris);
+  const result = await buildMarkdownDocument(uniqueFiles, baseRoot, config);
+  if (!result) {
+    vscode.window.showErrorMessage('Failed to read selected files.');
+    return;
+  }
+
+  await vscode.env.clipboard.writeText(result.markdown);
+
+  const countMsg = `${result.count} file${result.count > 1 ? 's' : ''}`;
+  const skipMsg = result.skippedCount > 0 ? ` (${result.skippedCount} file(s) skipped due to size)` : '';
   vscode.window.showInformationMessage(`Copied ${countMsg} as Markdown to clipboard!${skipMsg}`);
+}
+
+async function copyMarkdownFileHandler(clickedUri?: vscode.Uri, selectedUris?: vscode.Uri[]): Promise<void> {
+  const initialUris = resolveInitialUris(clickedUri, selectedUris);
+  if (initialUris.length === 0) {
+    vscode.window.showWarningMessage('No files or folders selected.');
+    return;
+  }
+
+  const config = vscode.workspace.getConfiguration('copyAsMarkdown');
+  const uniqueFiles = await collectUniqueFiles(initialUris, config);
+  if (uniqueFiles.length === 0) {
+    vscode.window.showWarningMessage('No valid text files found to copy.');
+    return;
+  }
+
+  const baseRoot = resolveCommonRoot(initialUris);
+  const result = await buildMarkdownDocument(uniqueFiles, baseRoot, config);
+  if (!result) {
+    vscode.window.showErrorMessage('Failed to read selected files.');
+    return;
+  }
+
+  const fileName = determineFileName(initialUris, baseRoot, '.md');
+  const tempFilePath = await writeAndCopyFile(fileName, result.markdown);
+  await notifyFileSuccess(result.count, fileName, tempFilePath, result.skippedCount);
 }
 
 async function copyTreeHandler(clickedUri?: vscode.Uri, selectedUris?: vscode.Uri[]): Promise<void> {
@@ -785,17 +838,19 @@ function sanitizeFileName(name: string): string {
   return name.replace(/[/\\?%*:|"<>]/g, '_').trim();
 }
 
-function determineZipFileName(initialUris: vscode.Uri[], baseRoot: string): string {
+function determineFileName(initialUris: vscode.Uri[], baseRoot: string, extension: string): string {
+  const ext = extension.startsWith('.') ? extension : `.${extension}`;
   if (initialUris.length === 1) {
     const rawName = path.basename(initialUris[0].fsPath);
     const parsed = path.parse(rawName);
     const safeBase = sanitizeFileName(parsed.name || rawName);
-    return `${safeBase}.txt`;
+    return `${safeBase}${ext}`;
   }
 
   const workspaceName = baseRoot ? path.basename(baseRoot) : '';
-  const safeName = sanitizeFileName(workspaceName) || 'archive';
-  return `${safeName}.txt`;
+  const defaultFallback = ext === '.md' ? 'context' : 'archive';
+  const safeName = sanitizeFileName(workspaceName) || defaultFallback;
+  return `${safeName}${ext}`;
 }
 
 async function collectZipEntries(
@@ -820,14 +875,14 @@ async function collectZipEntries(
   return { entries, skippedCount };
 }
 
-async function writeAndCopyZipFile(fileName: string, zipBuffer: Buffer): Promise<string> {
+async function writeAndCopyFile(fileName: string, content: Buffer | string): Promise<string> {
   const tempFilePath = path.join(os.tmpdir(), fileName);
-  await fs.writeFile(tempFilePath, zipBuffer);
+  await fs.writeFile(tempFilePath, content);
   await copyFileToClipboard(tempFilePath);
   return tempFilePath;
 }
 
-async function notifyZipSuccess(
+async function notifyFileSuccess(
   count: number,
   fileName: string,
   tempFilePath: string,
@@ -851,14 +906,7 @@ async function copyZipHandler(clickedUri?: vscode.Uri, selectedUris?: vscode.Uri
   }
 
   const config = vscode.workspace.getConfiguration('copyAsMarkdown');
-  const userIgnoredFiles = config.get<string[]>('ignoredFiles', []);
-  const allFiles: string[] = [];
-
-  for (const uri of initialUris) {
-    await collectFiles(uri, allFiles, userIgnoredFiles);
-  }
-
-  const uniqueFiles = Array.from(new Set(allFiles));
+  const uniqueFiles = await collectUniqueFiles(initialUris, config);
   if (uniqueFiles.length === 0) {
     vscode.window.showWarningMessage('No valid text files found to copy.');
     return;
@@ -873,16 +921,17 @@ async function copyZipHandler(clickedUri?: vscode.Uri, selectedUris?: vscode.Uri
     return;
   }
 
-  const fileName = determineZipFileName(initialUris, baseRoot);
+  const fileName = determineFileName(initialUris, baseRoot, '.txt');
   const zipBuffer = buildZipBuffer(entries);
-  const tempFilePath = await writeAndCopyZipFile(fileName, zipBuffer);
+  const tempFilePath = await writeAndCopyFile(fileName, zipBuffer);
 
-  await notifyZipSuccess(entries.length, fileName, tempFilePath, skippedCount);
+  await notifyFileSuccess(entries.length, fileName, tempFilePath, skippedCount);
 }
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.commands.registerCommand('copy-as-markdown.copyFiles', copyFilesHandler),
+    vscode.commands.registerCommand('copy-as-markdown.copyMarkdownFile', copyMarkdownFileHandler),
     vscode.commands.registerCommand('copy-as-markdown.copyTree', copyTreeHandler),
     vscode.commands.registerCommand('copy-as-markdown.copyZip', copyZipHandler)
   );
